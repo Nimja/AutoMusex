@@ -138,6 +138,7 @@ class CellManager {
         if (this.interval) {
             clearInterval(this.interval);
             this.interval = null;
+            this.afterStep();
         }
     }
 
@@ -201,7 +202,12 @@ class CellManager {
     }
 
     afterStep() {
-        history.replaceState({}, document.title, '?q=' + this.getShareString());
+        if (!this.interval) {
+            let newString = '?q=' + this.getShareString()
+            if (window.location.search != newString) {
+                history.replaceState({}, document.title, newString);
+            }
+        }
     }
 
     getShareString() {
