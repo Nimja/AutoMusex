@@ -160,7 +160,7 @@ class CellMachine {
         if (Array.isArray(c)) {
             return;
         }
-        if (targetC == -1) {
+        if (targetC == DIR_UNSET) {
             targetC = c + 1;
         }
         this.grid[index] = targetC % this.dirs.length;

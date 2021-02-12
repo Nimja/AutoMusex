@@ -1,17 +1,18 @@
 // Directional constants, needed everywhere.
 const DIR_NONE = 0;
+const DIR_UNSET = -1;
 // In the same order as dirs.
 KEY_DIRECTIONS_SQUARE = {
-    8: 0,
-    46: 0,
+    8: DIR_NONE,
+    46: DIR_NONE,
     38: 1,
     39: 2,
     40: 3,
     37: 4
 };
 KEY_DIRECTIONS_HEX = {
-    8: 0,
-    46: 0,
+    8: DIR_NONE,
+    46: DIR_NONE,
     38: 1,
     39: 2,
     40: 4,
@@ -22,7 +23,7 @@ class CellManager {
     constructor() {
         this.bpm = 90;
         this.interval = null;
-        this.heldDir = DIR_NONE;
+        this.heldDir = DIR_UNSET;
         // Parse query string in url (if present) before we do anything.
         let urlParams = new URLSearchParams(window.location.search);
         this.storedString = urlParams.get('q');
@@ -177,7 +178,7 @@ class CellManager {
         var codes = this.isSquare ? KEY_DIRECTIONS_SQUARE : KEY_DIRECTIONS_HEX;
         if (codes.hasOwnProperty(code)) {
             event.preventDefault();
-            this.heldDir = down ? codes[code] : -1;
+            this.heldDir = down ? codes[code] : DIR_UNSET;
         } else if (code == 32 && down) {
             event.preventDefault();
             this.autoStep();

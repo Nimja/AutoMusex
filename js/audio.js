@@ -1,6 +1,5 @@
 // Notes from low C, 12 half notes.
-const PENTONIC_MAJOR = [0, 2, 4, 7, 9];
-const PENTONIC_MINOR = [0, 3, 5, 7, 10];
+const PENTATONIC_SCALE = [0, 2, 4, 7, 9];
 
 OCTAVE = 12;
 
@@ -54,13 +53,13 @@ class CellAudio {
         for (var i = 0; i < len; i++) {
             var coords = machine.getIToC(machine.bounces[i]);
             var index = coords.y + coords.x;
-            var octave = Math.floor(index / PENTONIC_MAJOR.length);
-            var note = index - octave * PENTONIC_MAJOR.length;
+            var octave = Math.floor(index / PENTATONIC_SCALE.length);
+            var note = index - octave * PENTATONIC_SCALE.length;
             this.playNote(octave + 3, note);
         }
     }
     playNote(oct, pent) {
-        var index = oct * OCTAVE + (PENTONIC_MAJOR[pent] + this.key) % OCTAVE;
+        var index = oct * OCTAVE + (PENTATONIC_SCALE[pent] + this.key) % OCTAVE;
         this.makeSound(NOTE_FREQUENCIES[index]);
     }
     makeSound(hz) {

@@ -20,8 +20,8 @@ const DIRS_HEX = [
 // How it bounces.
 const EDGE_BOUNCE = {
     'left': [DIR_NONE, DIR_R, DIR_R, DIR_DR, DIR_DL, DIR_DL, DIR_DR],
-    'center':[DIR_NONE, DIR_DR, DIR_R, DIR_DR, DIR_DL, DIR_L, DIR_DL],
-    'right':[DIR_NONE, DIR_DL, DIR_DR, DIR_DR, DIR_DL, DIR_L, DIR_L],
+    'center': [DIR_NONE, DIR_DR, DIR_R, DIR_DR, DIR_DL, DIR_L, DIR_DL],
+    'right': [DIR_NONE, DIR_DL, DIR_DR, DIR_DR, DIR_DL, DIR_L, DIR_L],
 }
 
 class CellMachineHex extends CellMachine {
