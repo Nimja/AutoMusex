@@ -28,7 +28,7 @@ class CellMachineHex extends CellMachine {
     constructor(size) {
         super(size);
         this.dirs = DIRS_HEX;
-        this.turnNormal = 5;
+        this.turnNormal = 4;
         this.turnOpposite = 3;
     }
 
