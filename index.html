@@ -1,0 +1,74 @@
+<html>
+
+<head>
+    <title>AutoMusex - Nimja</title>
+</head>
+
+<body>
+    <div>
+        <h3>AutoMusex</h3>
+        <div>
+            <button id="toy-play" class="btn btn-default">Play/pause</button>
+            <button id="toy-step" class="btn btn-default">Step</button>
+            <button id="toy-clear" class="btn btn-default">Clear</button>
+            <button id="toy-store" class="btn btn-default">Store</button>
+            <button id="toy-restore" class="btn btn-default">Restore</button>
+        </div>
+        <div>
+            <input type="checkbox" id="toy-square">
+            <label for="toy-square">Square grid (clears field)</label>
+        </div>
+        <div>
+            <label for="toy-size">Size</label>
+            <input type="range" min="3" max="6" value="4" id="toy-size">
+        </div>
+        <div>
+            <label for="toy-bpm">BPM</label>
+            <input type="range" min="90" max="480" step="10" value="240" id="toy-bpm">
+        </div>
+        <div>
+            <label for="toy-note-length">Note length</label>
+            <input type="range" min="1" max="10" value="4" id="toy-note-length">
+        </div>
+        <div>
+            <label for="toy-note-type">Note type</label>
+            <input type="range" min="1" max="5" value="1" id="toy-note-type">
+        </div>
+        <div>
+            <label for="toy-note-key">Note key</label>
+            <input type="range" min="0" max="11" value="0" id="toy-note-key">
+        </div>
+        <canvas style="width: 100%; height: auto; max-width: 600px;" id="toy-canvas"></canvas>
+        <div>
+            <h3>How does it work?</h3>
+            <p>Tap/click to set add/change/remove arrow in a cell.</p>
+            <p>Play does automatic steps according to BPM.</p>
+            <p>You can share the url with your current 'song'. Changing size will randomize the field.</p>
+            <p>Advanced: Hold an arrow key or del/backspace while clicking.</p>
+            <h3>The rules</h3>
+            <ul>
+                <li>A filled cell will move in the direction it points.</li>
+                <li>Edge: Bounce off</li>
+                <li>Collision: If it lands in a cell with another arrow, they both turn clockwise.</li>
+                <li>Edge + Collision: Turn around.</li>
+            </ul>
+            <p>This was inspired by <a href="http://earslap.com/page/otomata.html">Otomata</a> - Completely re-done, hex
+                grid and with web-audio that is generated on the fly!</p>
+        </div>
+    </div>
+    <!-- Load all the classes -->
+    <script src="js/manager.js"></script>
+    <script src="js/encoder.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/canvas_drawer.js"></script>
+    <script src="js/machine_square.js"></script>
+    <script src="js/renderer_square.js"></script>
+    <script src="js/machine_hex.js"></script>
+    <script src="js/renderer_hex.js"></script>
+    <script>
+        // And let's go!
+        new CellManager();
+    </script>
+</body>
+
+</html>
