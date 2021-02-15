@@ -15,29 +15,32 @@
             <button id="toy-restore" class="btn btn-default">Restore</button>
         </div>
         <br />
-        <div>
-            <input type="checkbox" id="toy-square">
-            <label for="toy-square">Square grid (clears field)</label>
-        </div>
-        <div>
-            <label for="toy-size">Size</label>
-            <input type="range" min="3" max="6" value="4" id="toy-size">
-        </div>
-        <div>
-            <label for="toy-bpm">BPM</label>
-            <input type="range" min="90" max="480" step="10" value="200" id="toy-bpm">
-        </div>
-        <div>
-            <label for="toy-note-length">Note length</label>
-            <input type="range" min="1" max="10" value="4" id="toy-note-length">
-        </div>
-        <div>
-            <label for="toy-note-type">Note type</label>
-            <input type="range" min="1" max="5" value="1" id="toy-note-type">
-        </div>
-        <div>
-            <label for="toy-note-key">Note key</label>
-            <input type="range" min="0" max="11" value="0" id="toy-note-key">
+        <div class="toy-settings">
+            <div>
+                <label><input type="radio" name="toy-field" value="0"> Hexagon</label>
+                <label><input type="radio" name="toy-field" value="1"> Square</label>
+                <label><input type="radio" name="toy-field" value="2"> Octagon</label>
+            </div>
+            <div>
+                <label for="toy-size">Size</label>
+                <input type="range" min="3" max="6" value="4" id="toy-size">
+            </div>
+            <div>
+                <label for="toy-bpm">BPM</label>
+                <input type="range" min="90" max="480" step="10" value="200" id="toy-bpm">
+            </div>
+            <div>
+                <label for="toy-note-length">Note length</label>
+                <input type="range" min="1" max="10" value="4" id="toy-note-length">
+            </div>
+            <div>
+                <label for="toy-note-type">Note type</label>
+                <input type="range" min="1" max="6" value="1" id="toy-note-type">
+            </div>
+            <div>
+                <label for="toy-note-key">Note key</label>
+                <input type="range" min="0" max="11" value="0" id="toy-note-key">
+            </div>
         </div>
         <canvas style="width: 100%; height: auto; max-width: 600px;" id="toy-canvas"></canvas>
         <div>
@@ -66,6 +69,8 @@
     <script src="js/renderer_square.js"></script>
     <script src="js/machine_hex.js"></script>
     <script src="js/renderer_hex.js"></script>
+    <script src="js/machine_oct.js"></script>
+    <script src="js/renderer_oct.js"></script>
     <script>
         // And let's go!
         new CellManager();

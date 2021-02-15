@@ -1,28 +1,36 @@
+ARROW_SHAPE = [ // Arrow shape in radius + angle. 0 - tip.
+    { r: 1, a: 0 },
+    { r: 1, a: Math.PI - .6 },
+    { r: .5, a: Math.PI },
+    { r: 1, a: Math.PI + .6 },
+    { r: 1, a: 0 }, // And close the shape.
+];
+
 class CanvasDrawer {
     constructor(sides) {
         this.sides = sides;
+        let angleOffset = Math.PI / 2;
+        if (sides == 8) {
+            angleOffset += Math.PI / sides;
+        }
+        this.firstAngle = -Math.PI / 2;
+        if (sides == 6) {
+            this.firstAngle += Math.PI / 6; // Hexagons don't point up.
+        }
         this.coords = [];
         this.arrowCoords = [];
         for (var i = 0; i <= this.sides; i++) {
-            let angle = i / this.sides * Math.PI * 2 - Math.PI * .5;
+            let angle = angleOffset + i / this.sides * Math.PI * 2;
             this.coords.push({ x: Math.cos(angle), y: Math.sin(angle) });
             this.arrowCoords.push(this.makeArrowCoords(i));
         }
     }
 
     makeArrowCoords(i) {
-        let aOffset = Math.PI * 2 / this.sides * (i - 1),
-            x, y,
-            points = [ // Arrow shape in radius + angle. 0 - tip.
-                { r: 1, a: 0 },
-                { r: 1, a: Math.PI - .6 },
-                { r: .5, a: Math.PI },
-                { r: 1, a: Math.PI + .6 },
-                { r: 1, a: 0 }, // And close the shape.
-            ]
-        let result = [];
-        for (var p in points) {
-            let point = points[p];
+        let aOffset = this.firstAngle + Math.PI * 2 / this.sides * i,
+            result = [];
+        for (var p in ARROW_SHAPE) {
+            let point = ARROW_SHAPE[p];
             result.push(
                 {
                     x: point.r * Math.cos(aOffset + point.a),
@@ -33,7 +41,7 @@ class CanvasDrawer {
         return result;
     }
 
-    drawBackground(ctx, coord, radius, hasColl) {
+    drawBackground(ctx, coord, radius) {
         if (this.sides == 4) {
             ctx.moveTo(coord.x - radius, coord.y - radius);
             ctx.rect(coord.x - radius, coord.y - radius, radius * 2, radius * 2)

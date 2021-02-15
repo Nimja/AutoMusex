@@ -3,11 +3,6 @@ const HEXPOINT = { x: .86603, xspace: .86603 * 2, y: .5, yspace: .5 + 1 }
 
 
 class CellRendererHex extends CellRenderer {
-    constructor(manager, machine, canvas) {
-        super(manager, machine, canvas);
-        this.drawer = new CanvasDrawer(6);
-    }
-
     updateSize() {
         // Set up the details we need for rendering the hexagons :)
         let middle = this.size / 2;
@@ -25,7 +20,7 @@ class CellRendererHex extends CellRenderer {
         // Drawing sizes:
         this.backgroundRadius = this.hexRadius * .95;
         this.arrowRadius = this.hexRadius * .45;
-        this.circleRadius = this.hexRadius * .4;
+        this.circleRadius = this.hexRadius * .35;
     }
 
     getCoordsForIndex(i) {

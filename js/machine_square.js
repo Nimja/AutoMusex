@@ -14,12 +14,20 @@ const DIRS = [
     { x: -1, y: 0 }
 ];
 
+// How it bounces, all the same.
+const EDGE_BOUNCE = {
+    'left': [DIR_NONE, DIR_DOWN, DIR_RIGHT, DIR_DOWN, DIR_LEFT],
+    'center': [DIR_NONE, DIR_DOWN, DIR_RIGHT, DIR_DOWN, DIR_LEFT],
+    'right': [DIR_NONE, DIR_DOWN, DIR_RIGHT, DIR_DOWN, DIR_LEFT],
+}
+
 class CellMachine {
     constructor(size) {
         this.updateSize(size);
         this.dirs = DIRS;
         this.turnNormal = 3;
         this.turnOpposite = 2;
+        this.sides = 4;
     }
 
     updateSize(size) {
@@ -27,6 +35,7 @@ class CellMachine {
             return false;
         }
         this.size = size;
+        this.distanceToCenter = size - 1;
         this.maxPerRow = size * 2 - 1;
         this.maxIndex = this.maxPerRow * this.maxPerRow;
         // Current state.
@@ -40,33 +49,67 @@ class CellMachine {
 
     /**
      * Make sure the dir around edges is always correct (and bounce).
+     *
+     * Using rotation, we can use the same rule for hex and square.
      */
     getCleanDirForEdge(i, c, preCheck) {
-        var prevC = c,
-            limit = this.maxPerRow - 1;
-        var pos = this.getIToC(i);
-        var dir = this.dirs[c];
-        // Horizontal movement, check edges.
-        if (dir.x != 0) {
-            if (pos.x == 0) {
-                c = DIR_RIGHT;
-            } else if (pos.x == limit) {
-                c = DIR_LEFT;
-            }
+        let coord = this.getIToCentered(i);
+        if (!coord.edge) {
+            return c;
         }
-        // Vertical movement, check edges.
-        if (dir.y != 0) {
-            if (pos.y == 0) {
-                c = DIR_DOWN;
-            } else if (pos.y == limit) {
-                c = DIR_UP;
-            }
-        }
+        let prevC = c
+        let left = -this.distanceToCenter;
+        let right = this.distanceToCenter;
+
+        let rotation = this.getRotation(coord, left, right);
+        // Get which edge we're checking.
+
+        coord = this.rotateXYCoord(coord, rotation);
+        c = this.rotateC(c, this.sides - rotation);
+
+        c = this.getBounce(this.getEdgeName(coord, left, right), c);
+        // Rotate back.
+        c = this.rotateC(c, rotation);
+
         // We had to change dir, ie. we bounced (and not in pre-check).
         if (c != prevC && !preCheck) {
             this.bounces.push(i);
         }
         return c;
+    }
+
+    getRotation(coord, left, right) {
+        let rotation = 0;
+        if (coord.y == left || coord.y == right) {
+            rotation = coord.y == left ? 0 : 2;
+        } else if (coord.x == left || coord.x == right) {
+            rotation = coord.x == left ? 3 : 1;
+        }
+        return rotation;
+    }
+
+    getEdgeName(coord, left, right) {
+        let edge = 'center';
+        if (coord.x == left) { // Left corner.
+            edge = 'left'
+        } else if (coord.x == right) { // Right corner.
+            edge = 'right';
+        }
+        return edge;
+    }
+
+    getBounce(edge, c) {
+        return EDGE_BOUNCE[edge][c];
+    }
+
+    // Rotate square grid around center.
+    rotateXYCoord(coord, rotation) {
+        switch (rotation) {
+            case 1: return { x: -coord.y, y: coord.x };
+            case 2: return { x: -coord.x, y: -coord.y };
+            case 3: return { x: coord.y, y: -coord.x };
+            default: return coord;
+        }
     }
 
     // Coord to array index.
@@ -84,6 +127,14 @@ class CellMachine {
             edge: x == 0 || y == 0 || x == maxVal || y == maxVal
         };
     }
+    // Get centered, cool XYZ hex coord. - Edges are -distanceToCenter.
+    getIToCentered(i) {
+        var coord = this.getIToC(i);
+        coord.x -= this.distanceToCenter;
+        coord.y -= this.distanceToCenter;
+        return coord
+    }
+
     // Get index + offset using coordinates.
     getIAddC(i, x, y) {
         return i + y * this.maxPerRow + x;
@@ -160,7 +211,7 @@ class CellMachine {
         if (Array.isArray(c)) {
             return;
         }
-        if (targetC == DIR_UNSET) {
+        if (targetC == -1) {
             targetC = c + 1;
         }
         this.grid[index] = targetC % this.dirs.length;

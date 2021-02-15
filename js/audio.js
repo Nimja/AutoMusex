@@ -16,8 +16,21 @@ const NOTE_FREQUENCIES = [
     4186.01, 4434.92, 4698.63, 4978.03, 5274.04, 5587.65, 5919.91, 6271.93, 6644.88, 7040, 7458.62, 7902.13,
 ];
 
+// Make sure order is always maintained.
+EXTRA_INSTRUMENTS = ['horn', 'synth'];
+
+INSTRUMENTS = {
+    'horn': {
+        'real': new Float32Array([0, 0.4, 0.4, 1, 1, 1, 0.3, 0.7, 0.6, 0.5, 0.9, 0.8])
+    },
+    'synth': {
+        'real': new Float32Array([0, 1, 0, 1, 0, .5])
+    }
+};
+
 class CellAudio {
     constructor() {
+        this.types = ['sine', 'square', 'triangle', 'sawtooth'].concat(EXTRA_INSTRUMENTS);
         var AudioContext = window.AudioContext // Default
             || window.webkitAudioContext // Safari and old versions of Chrome
             || false;
@@ -37,10 +50,13 @@ class CellAudio {
         if (!this.context && this.AudioContext) {
             this.context = new this.AudioContext();
             // Make funky instrument :)
-            var real = new Float32Array([0, 0.4, 0.4, 1, 1, 1, 0.3, 0.7, 0.6, 0.5, 0.9, 0.8]);
-            var imag = new Float32Array(real.length);
             this.custom = {};
-            this.custom.horn = this.context.createPeriodicWave(real, imag);
+            for (var i in INSTRUMENTS) {
+                let instrument = INSTRUMENTS[i];
+                let real = instrument.real;
+                let imag = instrument.hasOwnProperty('imag') ? instrument.imag : new Float32Array(real.length);
+                this.custom[i] = this.context.createPeriodicWave(real, imag);
+            }
         }
     }
 
@@ -67,8 +83,8 @@ class CellAudio {
         var o = context.createOscillator()
         var g = context.createGain()
         g.gain.value = .00001;
-        if (this.type == 'horn') {
-            o.setPeriodicWave(this.custom.horn);
+        if (this.typeId > 4) {
+            o.setPeriodicWave(this.custom[this.type]);
         } else {
             o.type = this.type;
         }
@@ -84,8 +100,8 @@ class CellAudio {
         this.length = length / 2;
     }
     updateType(type) {
-        let types = ['sine', 'square', 'triangle', 'sawtooth', 'horn'];
-        this.type = types[type - 1];
+        this.typeId = type;
+        this.type = this.types[type - 1];
     }
     updateKey(key) {
         this.key = parseInt(key) % OCTAVE;

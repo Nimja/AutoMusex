@@ -18,7 +18,7 @@ const DIRS_HEX = [
 ];
 
 // How it bounces.
-const EDGE_BOUNCE = {
+const EDGE_BOUNCE_HEX = {
     'left': [DIR_NONE, DIR_R, DIR_R, DIR_DR, DIR_DL, DIR_DL, DIR_DR],
     'center': [DIR_NONE, DIR_DR, DIR_R, DIR_DR, DIR_DL, DIR_L, DIR_DL],
     'right': [DIR_NONE, DIR_DL, DIR_DR, DIR_DR, DIR_DL, DIR_L, DIR_L],
@@ -30,6 +30,7 @@ class CellMachineHex extends CellMachine {
         this.dirs = DIRS_HEX;
         this.turnNormal = 4;
         this.turnOpposite = 3;
+        this.sides = 6;
     }
 
     updateSize(size) {
@@ -89,20 +90,7 @@ class CellMachineHex extends CellMachine {
         }
     }
 
-    /**
-     * Make sure the dir around edges is always correct (and bounce).
-     *
-     * For HEX this is a lot more complicated.
-     */
-    getCleanDirForEdge(i, c, preCheck) {
-        let coord = this.getIToXYZ(i);
-        if (!coord.edge) {
-            return c;
-        }
-        let prevC = c
-        let left = -this.distanceToCenter;
-        let right = this.distanceToCenter;
-
+    getRotation(coord, left, right) {
         let rotation = 0;
         // Get which edge we're checking.
         if (coord.y == left || coord.y == right) {
@@ -112,24 +100,21 @@ class CellMachineHex extends CellMachine {
         } else if (coord.z == left || coord.z == right) {
             rotation = coord.z == left ? 4 : 1;
         }
-        coord = this.rotateXYZCoord(coord, rotation);
-        c = this.rotateC(c, 6 - rotation);
+        return rotation;
+    }
 
+    getEdgeName(coord, left, right) {
         let edge = 'center';
         if (coord.x == left) { // Left corner.
             edge = 'left'
         } else if (coord.x == 0) { // Right corner.
             edge = 'right';
         }
-        c = EDGE_BOUNCE[edge][c];
-        // Rotate back.
-        c = this.rotateC(c, rotation);
+        return edge;
+    }
 
-        // We had to change dir, ie. we bounced (and not in pre-check).
-        if (c != prevC && !preCheck) {
-            this.bounces.push(i);
-        }
-        return c;
+    getBounce(edge, c) {
+        return EDGE_BOUNCE_HEX[edge][c];
     }
 
     // Rotate our hexadecimal grid around the center easily.
@@ -154,7 +139,7 @@ class CellMachineHex extends CellMachine {
         return { x: coord.x, y: coord.y, edge: coord.edge }; // Return a copy.
     }
     // Get centered, cool XYZ hex coord. - Edges are -distanceToCenter.
-    getIToXYZ(i) {
+    getIToCentered(i) {
         var coord = this.getIToC(i);
         coord.x -= this.distanceToCenter;
         coord.y -= this.distanceToCenter;

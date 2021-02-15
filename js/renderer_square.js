@@ -1,3 +1,12 @@
+
+COLORS = {
+    'grid': 'rgba(128, 128, 128, .5)',
+    'normal': 'rgba(255, 255, 255, .5)',
+    'glow': 'rgba(0, 192, 255, .9)',
+    'hit': 'rgba(255, 255, 255, 1)',
+    'arrows': 'rgba(0, 0, 0, .5)',
+}
+
 class CellRenderer {
     constructor(manager, machine, canvas) {
         this.manager = manager;
@@ -7,7 +16,7 @@ class CellRenderer {
         // Specific to Square.
         canvas.addEventListener('click', this.handleClick.bind(this));
         this.updateCanvas();
-        this.drawer = new CanvasDrawer(4);
+        this.drawer = new CanvasDrawer(machine.sides);
         this.active = false;
     }
     updateSize() {
@@ -16,7 +25,7 @@ class CellRenderer {
 
         this.backgroundRadius = this.blockSizeH * .95;
         this.arrowRadius = this.blockSizeH * .45;
-        this.circleRadius = this.blockSizeH * .4;
+        this.circleRadius = this.blockSizeH * .35;
     }
 
     getCoordsForIndex(i) {
@@ -54,7 +63,6 @@ class CellRenderer {
             return;
         }
         let ctx = this.context;
-        ctx.fillStyle = '#ccc';
         ctx.clearRect(0, 0, this.size, this.size);
         this.drawGrid(ctx);
         this.drawBlocks(ctx);
@@ -62,9 +70,7 @@ class CellRenderer {
         this.manager.afterStep();
     }
     drawGrid(ctx) {
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = 'rgba(0, 0, 0, .25)';
-        ctx.fillStyle = '#ccc';
+        ctx.fillStyle = COLORS.grid;
         ctx.beginPath();
         for (var i = 0; i < this.machine.maxIndex; i++) {
             let coord = this.getCoordsForIndex(i);
@@ -75,8 +81,6 @@ class CellRenderer {
 
     drawBlocks(ctx) {
         ctx.beginPath();
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = '#ccc';
         // Get the 4 groups of things we have to draw.
         let arrows = [];
         let circles = [];
@@ -103,8 +107,8 @@ class CellRenderer {
         }
         // Draw highlighted backgrounds.
         ctx.beginPath();
-        ctx.shadowColor = "cyan";
-        ctx.fillStyle = 'white';
+        ctx.shadowColor = COLORS.glow;
+        ctx.fillStyle = COLORS.hit;
         ctx.shadowBlur = this.backgroundRadius * .2;
         for (var i in bounces) {
             this.drawer.drawBackground(ctx, bounces[i], this.backgroundRadius);
@@ -115,14 +119,14 @@ class CellRenderer {
 
         // Draw normal backgrounds.
         ctx.beginPath();
-        ctx.fillStyle = 'rgba(255, 255, 255, .5)';
+        ctx.fillStyle = COLORS.normal;
         for (var i in backgrounds) {
             this.drawer.drawBackground(ctx, backgrounds[i], this.backgroundRadius);
         }
         ctx.fill();
         // Draw arrows.
         ctx.beginPath();
-        ctx.fillStyle = 'rgba(0, 0, 0, .5)';
+        ctx.fillStyle = COLORS.arrows;
         for (var i in arrows) {
             this.drawer.drawArrow(ctx, arrows[i].coord, this.arrowRadius, arrows[i].c);
         }
@@ -130,7 +134,7 @@ class CellRenderer {
 
         // Draw circles.
         ctx.beginPath();
-        ctx.fillStyle = 'rgba(0, 0, 0, .5)';
+        ctx.fillStyle = COLORS.arrows;
         for (var i in circles) {
             this.drawer.drawCircle(ctx, circles[i], this.circleRadius);
         }

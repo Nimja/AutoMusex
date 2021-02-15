@@ -18,6 +18,14 @@ KEY_DIRECTIONS_HEX = {
     40: 4,
     37: 5
 };
+KEY_DIRECTIONS_OCT = {
+    8: DIR_NONE,
+    46: DIR_NONE,
+    38: 1,
+    39: 3,
+    40: 5,
+    37: 7
+};
 
 class CellManager {
     constructor() {
@@ -45,14 +53,14 @@ class CellManager {
             'noteType': document.getElementById('toy-note-type'),
             'noteKey': document.getElementById('toy-note-key')
         }
-        // Order of checkboxes.
-        this.checkBoxKeys = ['square'];
-        this.checkboxes = {
-            'square': document.getElementById('toy-square')
+
+        this.radioKeys = ['field'];
+        this.radioButtons = {
+            'field': 'toy-field',
         }
 
         // Instantiate the machine, renderer and sound.
-        this.isSquare = 3;
+        this.field = 3;
         this.sound = new CellAudio();
         let canvas = document.getElementById('toy-canvas');
         // Square setup.
@@ -61,6 +69,9 @@ class CellManager {
         // Hex setup.
         this.machine_hex = new CellMachineHex(1);
         this.renderer_hex = new CellRendererHex(this, this.machine_hex, canvas);
+        // Octagon setup.
+        this.machine_oct = new CellMachineOct(1);
+        this.renderer_oct = new CellRendererOct(this, this.machine_oct, canvas);
 
         // Apply the current defaults (purely for performance).
         if (!this.storedString) {
@@ -74,11 +85,14 @@ class CellManager {
         this.buttons.store.addEventListener('click', this.doStore.bind(this));
         this.buttons.restore.addEventListener('click', this.doRestore.bind(this));
 
-        for (let i in this.sliders) {
-            this.sliders[i].addEventListener('change', this.applySettings.bind(this));
-        }
-        for (let i in this.checkboxes) {
-            this.checkboxes[i].addEventListener('change', this.applySettings.bind(this));
+        // Bind all the change events for sliders and radio buttons.
+        let self = this;
+        for (let i in this.radioButtons) {
+            document.querySelectorAll('.toy-settings input').forEach(
+                function (item) {
+                    item.addEventListener('change', self.applySettings.bind(self));
+                }
+            );
         }
         window.addEventListener('resize', this.handleResize.bind(this));
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
@@ -89,22 +103,35 @@ class CellManager {
     }
 
     // Applied automatically with the settings.
-    updateSquare(square) {
-        square = !!square;
-        if (this.isSquare === square) {
+    updateField(field) {
+        if (this.field === field) {
             return;
         }
-        this.isSquare = square;
-        if (this.isSquare) {
-            this.machine = this.machine_square;
-            this.renderer = this.renderer_square;
-        } else {
-            this.machine = this.machine_hex;
-            this.renderer = this.renderer_hex;
+        this.field = field;
+        // Set all to inactive.
+        this.renderer_square.active = false;
+        this.renderer_hex.active = false;
+        this.renderer_oct.active = false;
+
+        switch (this.field) {
+            case 2:
+                this.machine = this.machine_oct;
+                this.renderer = this.renderer_oct;
+                this.keys = KEY_DIRECTIONS_OCT;
+                break;
+            case 1:
+                this.machine = this.machine_square;
+                this.renderer = this.renderer_square;
+                this.keys = KEY_DIRECTIONS_SQUARE;
+                break;
+            default:
+                this.machine = this.machine_hex;
+                this.renderer = this.renderer_hex;
+                this.keys = this.KEY_DIRECTIONS_HEX;
         }
-        this.renderer_square.active = square;
-        this.renderer_hex.active = !square;
-        this.machine.updateSize(2);
+        this.renderer.active = true;
+        // This forces recalculations later.
+        this.machine.updateSize(1);
     }
 
     updateSpeed(bpm) {
@@ -176,10 +203,9 @@ class CellManager {
 
     handleKeyPress(event, down) {
         var code = event.keyCode || event.which;
-        var codes = this.isSquare ? KEY_DIRECTIONS_SQUARE : KEY_DIRECTIONS_HEX;
-        if (codes.hasOwnProperty(code)) {
+        if (this.keys.hasOwnProperty(code)) {
             event.preventDefault();
-            this.heldDir = down ? codes[code] : DIR_UNSET;
+            this.heldDir = down ? this.keys[code] : DIR_UNSET;
         } else if (code == 32 && down) {
             event.preventDefault();
             this.autoStep();
@@ -191,8 +217,21 @@ class CellManager {
         this.renderer_hex.updateCanvas();
     }
 
+    getRadioValue(name) {
+        let checked = document.querySelector('input[name="' + name + '"]:checked');
+        return checked ? parseInt(checked.value) : 0;
+    }
+    setRadioValue(name, value) {
+        let checked = document.querySelector('input[name="' + name + '"][value="' + value + '"]');
+        if (checked) {
+            checked.checked = true;
+        }
+        return checked ? parseInt(checked.value) : 0;
+    }
+
+
     applySettings() {
-        this.updateSquare(this.checkboxes.square.checked);
+        this.updateField(this.getRadioValue(this.radioButtons.field));
         this.updateSize(parseInt(this.sliders.size.value));
         this.updateSpeed(parseInt(this.sliders.bpm.value));
         this.sound.updateLength(parseInt(this.sliders.noteLength.value));
@@ -212,8 +251,8 @@ class CellManager {
 
     getShareString() {
         let result = [];
-        for (let i in this.checkBoxKeys) {
-            result.push(this.checkboxes[this.checkBoxKeys[i]].checked ? 1 : 0);
+        for (let i in this.radioKeys) {
+            result.push(this.getRadioValue(this.radioButtons[this.radioKeys[i]]));
         }
         for (let i in this.sliderKeys) {
             result.push(this.sliders[this.sliderKeys[i]].value);
@@ -224,12 +263,12 @@ class CellManager {
     }
     setShareString(string) {
         let parts = string.split('-');
-        let expectedLength = this.checkBoxKeys.length + this.sliderKeys.length + 1;
+        let expectedLength = this.radioKeys.length + this.sliderKeys.length + 1;
         if (parts.length !== expectedLength) {
             return;
         }
-        for (let i in this.checkBoxKeys) {
-            this.checkboxes[this.checkBoxKeys[i]].checked = parseInt(parts.shift()) > 0;
+        for (let i in this.radioKeys) {
+            this.setRadioValue(this.radioButtons[this.radioKeys[i]], parts.shift());
         }
         for (let i in this.sliderKeys) {
             this.sliders[this.sliderKeys[i]].value = parts.shift();
