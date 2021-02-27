@@ -127,7 +127,7 @@ class CellManager {
             default:
                 this.machine = this.machine_hex;
                 this.renderer = this.renderer_hex;
-                this.keys = this.KEY_DIRECTIONS_HEX;
+                this.keys = KEY_DIRECTIONS_HEX;
         }
         this.renderer.active = true;
         // This forces recalculations later.

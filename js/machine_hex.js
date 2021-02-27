@@ -118,7 +118,7 @@ class CellMachineHex extends CellMachine {
     }
 
     // Rotate our hexadecimal grid around the center easily.
-    rotateXYZCoord(coord, rotation) {
+    rotateCoord(coord, rotation) {
         switch (rotation) {
             case 1: return { x: coord.y, y: -coord.z, z: coord.x };
             case 2: return { x: -coord.z, y: -coord.x, z: coord.y };

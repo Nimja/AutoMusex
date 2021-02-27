@@ -64,7 +64,7 @@ class CellMachine {
         let rotation = this.getRotation(coord, left, right);
         // Get which edge we're checking.
 
-        coord = this.rotateXYCoord(coord, rotation);
+        coord = this.rotateCoord(coord, rotation);
         c = this.rotateC(c, this.sides - rotation);
 
         c = this.getBounce(this.getEdgeName(coord, left, right), c);
@@ -103,7 +103,7 @@ class CellMachine {
     }
 
     // Rotate square grid around center.
-    rotateXYCoord(coord, rotation) {
+    rotateCoord(coord, rotation) {
         switch (rotation) {
             case 1: return { x: -coord.y, y: coord.x };
             case 2: return { x: -coord.x, y: -coord.y };
