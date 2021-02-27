@@ -1,7 +1,7 @@
 // Directional constants, needed everywhere.
 const DIR_NONE = 0;
 const DIR_UNSET = -1;
-// In the same order as dirs.
+// Map keycodes (much easier) to directions.
 KEY_DIRECTIONS_SQUARE = {
     8: DIR_NONE,
     46: DIR_NONE,
@@ -32,6 +32,7 @@ class CellManager {
         this.bpm = 90;
         this.interval = null;
         this.heldDir = DIR_UNSET;
+        this.field = -99;
         // Parse query string in url (if present) before we do anything.
         let urlParams = new URLSearchParams(window.location.search);
         this.storedString = urlParams.get('q');
@@ -60,7 +61,6 @@ class CellManager {
         }
 
         // Instantiate the machine, renderer and sound.
-        this.field = 3;
         this.sound = new CellAudio();
         let canvas = document.getElementById('toy-canvas');
         // Square setup.
