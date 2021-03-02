@@ -56,7 +56,7 @@ class CellMachineOct extends CellMachine {
     }
 
     // Rotate square grid around center.
-    rotateXYCoord(coord, rotation) {
+    rotateCoord(coord, rotation) {
         switch (rotation) {
             case 2: return { x: coord.y, y: -coord.x };
             case 4: return { x: -coord.x, y: -coord.y };
